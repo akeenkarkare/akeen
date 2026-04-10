@@ -1,6 +1,6 @@
 # akeen-portfolio
 
-Personal portfolio site for [Akeen Karkare](https://github.com/akeenkarkare). Built with Next.js, TypeScript, matter.js, and a hand-written WebGL2 N-body gravitational field.
+Personal portfolio site. Built with Next.js, TypeScript, matter.js, and a hand-written WebGL2 N-body gravitational field.
 
 ## What's interesting about it
 
