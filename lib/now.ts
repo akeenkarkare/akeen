@@ -30,15 +30,34 @@ export interface GithubData {
   followers: number;
 }
 
+/**
+ * Fetches recent commits across the user's repos.
+ *
+ * NOTE on the data source: GitHub's `/users/{u}/events/public` endpoint used
+ * to include a `commits` array in PushEvent payloads, but it no longer does
+ * — payloads now only contain `push_id`, `ref`, `head`, `before`. So we use
+ * each PushEvent's `head` SHA + repo to fetch the actual commit details
+ * from `/repos/{owner}/{repo}/commits/{sha}`.
+ *
+ * That's an extra fetch per event, but Next caches both layers, so under
+ * normal traffic this hits the GitHub API rarely.
+ *
+ * If GH_TOKEN is set in env, we use it to raise the rate limit from
+ * 60 req/hr unauthenticated to 5000 req/hr authenticated.
+ */
 export async function getGithub(username: string): Promise<GithubData | null> {
+  const token = process.env.GH_TOKEN;
+  const headers: Record<string, string> = { Accept: "application/vnd.github+json" };
+  if (token) headers.Authorization = `Bearer ${token}`;
+
   try {
     const [userRes, eventsRes] = await Promise.all([
       fetch(`https://api.github.com/users/${username}`, {
-        headers: { Accept: "application/vnd.github+json" },
+        headers,
         next: { revalidate: 600 },
       }),
       fetch(`https://api.github.com/users/${username}/events/public?per_page=30`, {
-        headers: { Accept: "application/vnd.github+json" },
+        headers,
         next: { revalidate: 300 },
       }),
     ]);
@@ -48,20 +67,41 @@ export async function getGithub(username: string): Promise<GithubData | null> {
     const user = await userRes.json();
     const events: GithubEvent[] = await eventsRes.json();
 
-    const commits: GithubCommit[] = [];
+    // Collect (repo, head_sha, when) tuples from PushEvents — newest first.
+    type PushRef = { repo: string; sha: string; when: string };
+    const pushes: PushRef[] = [];
+    const seen = new Set<string>();
     for (const e of events) {
-      if (e.type !== "PushEvent" || !e.payload?.commits) continue;
-      for (const c of e.payload.commits) {
+      if (e.type !== "PushEvent" || !e.payload?.head) continue;
+      const key = `${e.repo.name}@${e.payload.head}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      pushes.push({ repo: e.repo.name, sha: e.payload.head, when: e.created_at });
+      if (pushes.length >= 10) break;
+    }
+
+    // Resolve each push's head commit. Use the cached commit endpoint —
+    // commits are immutable so we can cache aggressively (1 day).
+    const commits: GithubCommit[] = [];
+    for (const p of pushes) {
+      try {
+        const commitRes = await fetch(
+          `https://api.github.com/repos/${p.repo}/commits/${p.sha}`,
+          { headers, next: { revalidate: 86400 } }
+        );
+        if (!commitRes.ok) continue;
+        const c = await commitRes.json();
+        const message = (c.commit?.message ?? "").split("\n")[0];
         commits.push({
-          repo: e.repo.name,
-          sha: c.sha.slice(0, 7),
-          message: c.message.split("\n")[0],
-          url: `https://github.com/${e.repo.name}/commit/${c.sha}`,
-          when: e.created_at,
+          repo: p.repo,
+          sha: p.sha.slice(0, 7),
+          message,
+          url: c.html_url ?? `https://github.com/${p.repo}/commit/${p.sha}`,
+          when: c.commit?.author?.date ?? p.when,
         });
-        if (commits.length >= 10) break;
+      } catch {
+        // Skip individual failures — better to show 9 commits than nothing
       }
-      if (commits.length >= 10) break;
     }
 
     return {
@@ -79,7 +119,7 @@ interface GithubEvent {
   type: string;
   repo: { name: string };
   created_at: string;
-  payload?: { commits?: { sha: string; message: string }[] };
+  payload?: { head?: string; commits?: { sha: string; message: string }[] };
 }
 
 // -------------------- SPOTIFY --------------------
