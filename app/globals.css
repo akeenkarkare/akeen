@@ -1,0 +1,23 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #0a0c12;
+  color: #fafafa;
+  -webkit-font-smoothing: antialiased;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+::selection {
+  background: #fef3c7;
+  color: #1f2937;
+}
+
+/* Homepage uses the fixed physics canvas — lock scrolling there only. */
+body:has(.physics-root) {
+  overflow: hidden;
+}
