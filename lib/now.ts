@@ -56,9 +56,11 @@ export async function getGithub(username: string): Promise<GithubData | null> {
         headers,
         next: { revalidate: 600 },
       }),
+      // Events list is the freshness bottleneck — anything newer than the
+      // oldest cached copy won't show up until this refreshes. Keep it short.
       fetch(`https://api.github.com/users/${username}/events/public?per_page=30`, {
         headers,
-        next: { revalidate: 300 },
+        next: { revalidate: 60 },
       }),
     ]);
 
