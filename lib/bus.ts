@@ -18,7 +18,7 @@ export interface CardAttractor {
   mass: number; // arbitrary units — tuned in the N-body shader
 }
 
-export interface Shockwave {
+interface Shockwave {
   x: number;
   y: number;
   strength: number; // 0..1

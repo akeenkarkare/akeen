@@ -13,12 +13,15 @@ import {
 } from "@/lib/physics";
 import { physicsBus, type GravityMode } from "@/lib/bus";
 import { PROJECTS, type Project } from "@/lib/projects";
+import { useMediaQuery } from "@/lib/useMediaQuery";
 import ProjectModal from "./ProjectModal";
 import HUD from "./HUD";
 import GravityControls from "./GravityControls";
 
-const CARD_W = 340;
-const CARD_H = 190;
+const CARD_W_DESKTOP = 340;
+const CARD_H_DESKTOP = 190;
+const CARD_W_MOBILE = 260;
+const CARD_H_MOBILE = 150;
 
 /**
  * Greedy word-wrap for a canvas context. Returns up to `maxLines` lines,
@@ -114,13 +117,28 @@ export default function PhysicsStage() {
     resize();
     window.addEventListener("resize", resize);
 
+    // Pick card size based on viewport once at mount — changing the card
+    // size after seeding would jank the whole simulation.
+    const isMobile = window.matchMedia("(max-width: 720px)").matches;
+    const CARD_W = isMobile ? CARD_W_MOBILE : CARD_W_DESKTOP;
+    const CARD_H = isMobile ? CARD_H_MOBILE : CARD_H_DESKTOP;
+
     // Seed cards in an arc above the ground with a small initial velocity.
+    // On mobile we stack them more vertically since they won't fit side-by-side.
     const centerX = window.innerWidth / 2;
     PROJECTS.forEach((p, i) => {
       const n = PROJECTS.length;
       const t = (i - (n - 1) / 2) / n;
-      const x = centerX + t * (CARD_W + 40) * 1.1;
-      const y = 180 + Math.abs(t) * 40;
+      let x: number;
+      let y: number;
+      if (isMobile) {
+        // Narrow column, slight horizontal jitter so collisions aren't perfectly axial
+        x = centerX + (Math.random() - 0.5) * 40;
+        y = 260 + i * (CARD_H + 30);
+      } else {
+        x = centerX + t * (CARD_W + 40) * 1.1;
+        y = 180 + Math.abs(t) * 40;
+      }
       const body = makeBody({
         id: p.id,
         pos: { x, y },
@@ -214,52 +232,67 @@ export default function PhysicsStage() {
         ctx.translate(b.pos.x, b.pos.y);
         ctx.rotate(b.angle);
 
-        const pad = 18;
+        // Scale text sizes relative to the reference desktop card so mobile
+        // cards don't look cramped — everything stays proportional.
+        const scale = (b.hw * 2) / CARD_W_DESKTOP;
+        const pad = Math.round(18 * scale);
         const innerW = b.hw * 2 - pad * 2;
+        const radius = Math.max(6, Math.round(10 * scale));
 
-        // shadow
+        // shadow (rounded, offset down-right)
+        ctx.beginPath();
+        ctx.roundRect(-b.hw + 5, -b.hh + 8, b.hw * 2, b.hh * 2, radius);
         ctx.fillStyle = "rgba(0,0,0,0.4)";
-        ctx.fillRect(-b.hw + 5, -b.hh + 8, b.hw * 2, b.hh * 2);
+        ctx.fill();
 
-        // card
+        // card fill
+        ctx.beginPath();
+        ctx.roundRect(-b.hw, -b.hh, b.hw * 2, b.hh * 2, radius);
         ctx.fillStyle = p.bg;
-        ctx.fillRect(-b.hw, -b.hh, b.hw * 2, b.hh * 2);
+        ctx.fill();
+
+        // card border
+        ctx.beginPath();
+        ctx.roundRect(-b.hw + 1, -b.hh + 1, b.hw * 2 - 2, b.hh * 2 - 2, radius - 1);
         ctx.strokeStyle = b.color;
         ctx.lineWidth = 2;
-        ctx.strokeRect(-b.hw + 1, -b.hh + 1, b.hw * 2 - 2, b.hh * 2 - 2);
+        ctx.stroke();
 
         // tag
         ctx.fillStyle = b.color;
-        ctx.font = "500 12px ui-monospace, 'SF Mono', Menlo, monospace";
+        ctx.font = `500 ${Math.round(12 * scale)}px ui-monospace, 'SF Mono', Menlo, monospace`;
         ctx.textAlign = "left";
         ctx.textBaseline = "alphabetic";
-        ctx.fillText(p.tag.toUpperCase(), -b.hw + pad, -b.hh + 32);
+        ctx.fillText(p.tag.toUpperCase(), -b.hw + pad, -b.hh + Math.round(32 * scale));
 
         // title — wrap to 2 lines if needed
         ctx.fillStyle = "#fafafa";
-        ctx.font = "700 26px ui-sans-serif, system-ui, sans-serif";
+        const titleFont = Math.round(26 * scale);
+        ctx.font = `700 ${titleFont}px ui-sans-serif, system-ui, sans-serif`;
         const titleLines = wrapText(ctx, p.title, innerW, 2);
-        let titleY = -b.hh + 66;
+        let titleY = -b.hh + Math.round(66 * scale);
+        const titleLineH = Math.round(30 * scale);
         for (const line of titleLines) {
           ctx.fillText(line, -b.hw + pad, titleY);
-          titleY += 30;
+          titleY += titleLineH;
         }
 
         // summary — 2 lines max, smaller, dimmer
         ctx.fillStyle = "rgba(250,250,250,0.72)";
-        ctx.font = "13px ui-sans-serif, system-ui, sans-serif";
-        const summaryStart = titleY + 6;
+        ctx.font = `${Math.round(13 * scale)}px ui-sans-serif, system-ui, sans-serif`;
+        const summaryStart = titleY + Math.round(6 * scale);
         const summaryLines = wrapText(ctx, p.summary, innerW, 2);
         let sy = summaryStart;
+        const summaryLineH = Math.round(18 * scale);
         for (const line of summaryLines) {
           ctx.fillText(line, -b.hw + pad, sy);
-          sy += 18;
+          sy += summaryLineH;
         }
 
         // hint
         ctx.fillStyle = "rgba(250,250,250,0.5)";
-        ctx.font = "11px ui-monospace, 'SF Mono', Menlo, monospace";
-        ctx.fillText("click to open · drag to throw", -b.hw + pad, b.hh - 18);
+        ctx.font = `${Math.round(11 * scale)}px ui-monospace, 'SF Mono', Menlo, monospace`;
+        ctx.fillText("click to open · drag to throw", -b.hw + pad, b.hh - Math.round(18 * scale));
 
         ctx.restore();
       }
@@ -357,24 +390,41 @@ export default function PhysicsStage() {
     dragRef.current = null;
   };
 
-  // ---- keyboard: konami → flip gravity (cycles down → up → down) ----
+  // ---- keyboard shortcuts ----
+  //  - G: cycle gravity modes (down → up → zero → down)
+  //  - Konami code (↑↑↓↓←→←→BA): toggle gravity down/up
   useEffect(() => {
-    const seq = [
+    const konami = [
       "ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown",
       "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight",
       "b", "a",
     ];
     let idx = 0;
     const onKey = (e: KeyboardEvent) => {
-      const want = seq[idx];
+      // Ignore shortcuts while user is typing in an input/textarea (e.g. the terminal)
+      const target = e.target as HTMLElement | null;
+      const isTyping =
+        !!target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable);
+
+      // G cycles gravity mode
+      if (!isTyping && (e.key === "g" || e.key === "G") && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        setGravityMode((m) => (m === "down" ? "up" : m === "up" ? "zero" : "down"));
+        return;
+      }
+
+      // Konami progression
+      const want = konami[idx];
       if (e.key === want) {
         idx++;
-        if (idx === seq.length) {
+        if (idx === konami.length) {
           setGravityMode((m) => (m === "down" ? "up" : "down"));
           idx = 0;
         }
       } else {
-        idx = e.key === seq[0] ? 1 : 0;
+        idx = e.key === konami[0] ? 1 : 0;
       }
     };
     window.addEventListener("keydown", onKey);

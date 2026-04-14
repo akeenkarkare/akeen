@@ -40,6 +40,10 @@ export default function Terminal() {
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  // Command history navigation (↑/↓). Newest last; cursor index is -1 when
+  // the user is typing a fresh command. We store successful submissions only.
+  const historyRef = useRef<string[]>([]);
+  const historyCursorRef = useRef<number>(-1);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -75,6 +79,11 @@ export default function Terminal() {
       setLines((l) => [...l, ...newLines]);
       return;
     }
+
+    // Push to history (skip consecutive duplicates), reset cursor
+    const hist = historyRef.current;
+    if (hist[hist.length - 1] !== cmd) hist.push(cmd);
+    historyCursorRef.current = -1;
 
     const [verb, ...args] = cmd.split(/\s+/);
     switch (verb.toLowerCase()) {
@@ -241,6 +250,37 @@ export default function Terminal() {
             if (e.key === "Enter") {
               run(input);
               setInput("");
+              return;
+            }
+            // History navigation. We use a ref-based cursor so arrow-key
+            // presses don't trigger renders unnecessarily; we only setState
+            // to change the displayed input value.
+            if (e.key === "ArrowUp") {
+              e.preventDefault();
+              const hist = historyRef.current;
+              if (hist.length === 0) return;
+              let c = historyCursorRef.current;
+              // -1 means "typing fresh"; first up-arrow goes to most recent
+              c = c === -1 ? hist.length - 1 : Math.max(0, c - 1);
+              historyCursorRef.current = c;
+              setInput(hist[c]);
+              return;
+            }
+            if (e.key === "ArrowDown") {
+              e.preventDefault();
+              const hist = historyRef.current;
+              if (hist.length === 0) return;
+              let c = historyCursorRef.current;
+              if (c === -1) return; // already typing fresh
+              c += 1;
+              if (c >= hist.length) {
+                historyCursorRef.current = -1;
+                setInput("");
+              } else {
+                historyCursorRef.current = c;
+                setInput(hist[c]);
+              }
+              return;
             }
           }}
           spellCheck={false}

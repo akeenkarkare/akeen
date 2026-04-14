@@ -66,7 +66,7 @@ export default async function NowPage() {
             What I&apos;m doing, live.
           </h1>
           <p style={{ color: "#9ca3af", fontSize: 14, marginTop: 10 }}>
-            Auto-updated from GitHub, Spotify, and Discord. Refreshes every minute.
+            Live feed. Auto-refreshes every minute.
           </p>
         </div>
         <Link
@@ -85,9 +85,9 @@ export default async function NowPage() {
         </Link>
       </div>
 
-      {/* Discord presence */}
-      <Section title="Right now">
-        {discord ? (
+      {/* Discord presence — only render if configured */}
+      {discord && (
+        <Section title="Right now">
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
               <span
@@ -104,7 +104,7 @@ export default async function NowPage() {
               </span>
             </div>
             {discord.activities.length === 0 ? (
-              <div style={{ color: "#6b7280", fontSize: 14 }}>Not doing anything trackable.</div>
+              <div style={{ color: "#6b7280", fontSize: 14 }}>Nothing active right now.</div>
             ) : (
               discord.activities.map((a, i) => (
                 <div key={i} style={{ marginBottom: 10 }}>
@@ -121,14 +121,12 @@ export default async function NowPage() {
               ))
             )}
           </div>
-        ) : (
-          <Placeholder label="Discord (Lanyard) not configured. Set DISCORD_USER_ID env var." />
-        )}
-      </Section>
+        </Section>
+      )}
 
-      {/* Spotify */}
-      <Section title="What I'm listening to">
-        {spotify ? (
+      {/* Spotify — only render if configured */}
+      {spotify && (
+        <Section title="What I'm listening to">
           <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
             {spotify.albumArt && (
               // eslint-disable-next-line @next/next/no-img-element
@@ -157,10 +155,8 @@ export default async function NowPage() {
               </div>
             </div>
           </div>
-        ) : (
-          <Placeholder label="Spotify not configured. Set SPOTIFY_CLIENT_ID / SECRET / REFRESH_TOKEN env vars." />
-        )}
-      </Section>
+        </Section>
+      )}
 
       {/* GitHub */}
       <Section title="Recent commits">
@@ -219,7 +215,7 @@ export default async function NowPage() {
             )}
           </>
         ) : (
-          <Placeholder label="GitHub API unreachable." />
+          <Placeholder label="Unable to reach GitHub right now. Try again in a minute." />
         )}
       </Section>
 

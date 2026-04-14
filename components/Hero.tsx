@@ -5,12 +5,12 @@ import NowBanner from "./NowBanner";
 export default function Hero() {
   return (
     <div
+      className="hero-wrap"
       style={{
         position: "fixed",
         top: 0,
         left: 0,
         right: 0,
-        padding: "40px 48px 0",
         fontFamily: "ui-sans-serif, system-ui, sans-serif",
         color: "#fafafa",
         pointerEvents: "none",
@@ -23,27 +23,28 @@ export default function Hero() {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "flex-start",
-          gap: 24,
+          gap: 16,
           flexWrap: "wrap",
         }}
       >
         <div
+          className="hero-label"
           style={{
             fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
-            fontSize: 12,
-            letterSpacing: 2,
             color: "#9ca3af",
           }}
         >
-          AKEEN KARKARE // STONY BROOK '27 // PHYSICS + EE
+          AKEEN KARKARE // STONY BROOK &apos;27 // PHYSICS + EE
         </div>
         <nav
+          className="hero-nav"
           style={{
             display: "flex",
             gap: 10,
             pointerEvents: "auto",
             fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
             fontSize: 11,
+            flexWrap: "wrap",
           }}
         >
           <NavLink href="/now">/now</NavLink>
@@ -60,43 +61,26 @@ export default function Hero() {
       </div>
 
       <h1
-        style={{
-          marginTop: 28,
-          fontSize: 56,
-          fontWeight: 700,
-          marginBottom: 0,
-          lineHeight: 1.02,
-          maxWidth: 880,
-          letterSpacing: -1.2,
-        }}
+        className="hero-title"
+        style={{ fontWeight: 700, margin: 0 }}
       >
         I build things that
         <br />
         shouldn&apos;t exist yet.
       </h1>
-      <p
-        style={{
-          marginTop: 20,
-          fontSize: 16,
-          maxWidth: 580,
-          color: "#d1d5db",
-          lineHeight: 1.6,
-        }}
-      >
-        Physics major at Stony Brook. I ship fast and across stacks — coding duels
-        used by thousands, a Discord bot serving 70k, an ML pipeline classifying
-        exoplanet transits, autonomous robots running on a Jetson. The cards below
-        are simulated rigid bodies, drifting in a 768-particle gravitational field
-        I wrote by hand in WebGL. Drag them. Throw them. Click to read.
+      <p className="hero-para" style={{ color: "#d1d5db", marginBottom: 0 }}>
+        Physics major at Stony Brook. I ship across stacks — coding duels used by
+        thousands, a Discord bot serving 70k, ML for exoplanet transits, autonomous
+        Jetson robots. The cards below are rigid bodies drifting in a hand-written
+        768-particle gravity field. Drag them. Throw them. Click to read.
       </p>
       <NowBanner />
 
       {/* Stats strip */}
       <div
+        className="hero-stats"
         style={{
-          marginTop: 22,
           display: "flex",
-          gap: 28,
           flexWrap: "wrap",
           fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
           fontSize: 11,

@@ -21,3 +21,70 @@ body {
 body:has(.physics-root) {
   overflow: hidden;
 }
+
+/* ---- Hero responsive typography ---- */
+.hero-wrap {
+  padding: 40px 48px 0;
+}
+.hero-label {
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+.hero-title {
+  margin-top: 28px;
+  font-size: 56px;
+  line-height: 1.02;
+  letter-spacing: -1.2px;
+  max-width: 880px;
+}
+.hero-para {
+  margin-top: 20px;
+  font-size: 16px;
+  max-width: 580px;
+  line-height: 1.6;
+}
+.hero-stats {
+  margin-top: 22px;
+  gap: 28px;
+}
+
+@media (max-width: 720px) {
+  .hero-wrap {
+    padding: 20px 20px 0;
+  }
+  .hero-label {
+    font-size: 10.5px;
+    letter-spacing: 1.5px;
+  }
+  .hero-title {
+    margin-top: 20px;
+    font-size: 34px;
+    line-height: 1.05;
+    letter-spacing: -0.8px;
+  }
+  .hero-para {
+    margin-top: 14px;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .hero-stats {
+    margin-top: 16px;
+    gap: 18px;
+  }
+  .hero-nav {
+    font-size: 10.5px;
+    gap: 6px !important;
+  }
+  .hero-nav a {
+    padding: 5px 9px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero-title {
+    font-size: 28px;
+  }
+  .hero-para {
+    font-size: 13.5px;
+  }
+}
