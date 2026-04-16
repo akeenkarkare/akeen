@@ -32,8 +32,33 @@ const PROJECTS: Record<string, string> = {
   research: "SBU Research Assistant — AI academic assistant in C++, deployed across departments.",
 };
 
-export default function Terminal() {
-  const [open, setOpen] = useState(false);
+interface TerminalProps {
+  /** Controlled open state. If provided, `~` still toggles via onOpenChange. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export default function Terminal({ open: openProp, onOpenChange }: TerminalProps = {}) {
+  const [openInternal, setOpenInternal] = useState(false);
+  const isControlled = openProp !== undefined;
+  const open = isControlled ? !!openProp : openInternal;
+
+  // Keep a ref to the latest open value so the `~` keydown listener (which
+  // only binds once) can compute the correct toggle target regardless of
+  // controlled vs uncontrolled mode.
+  const openRef = useRef(open);
+  openRef.current = open;
+
+  const toggleOpen = () => {
+    const next = !openRef.current;
+    if (!isControlled) setOpenInternal(next);
+    onOpenChange?.(next);
+  };
+  const closeTerminal = () => {
+    if (!isControlled) setOpenInternal(false);
+    onOpenChange?.(false);
+  };
+
   const [lines, setLines] = useState<Line[]>([
     { kind: "system", text: "akeen-os v1.0 · type `help` for commands · press ~ to close" },
   ]);
@@ -56,11 +81,13 @@ export default function Terminal() {
           target.isContentEditable
         ) return;
         e.preventDefault();
-        setOpen((o) => !o);
+        toggleOpen();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
+    // toggleOpen is stable by design (reads openRef), so we intentionally omit it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -138,7 +165,7 @@ export default function Terminal() {
         setLines([]);
         return;
       case "exit":
-        setOpen(false);
+        closeTerminal();
         return;
       case "sudo":
         newLines.push({ kind: "output", text: "nice try." });
@@ -188,7 +215,7 @@ export default function Terminal() {
         }}
       >
         <div style={{ display: "flex", gap: 6 }}>
-          <Dot color="#ef4444" onClick={() => setOpen(false)} title="close" />
+          <Dot color="#ef4444" onClick={closeTerminal} title="close" />
           <Dot color="#facc15" />
           <Dot color="#22c55e" />
         </div>
