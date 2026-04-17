@@ -10,6 +10,9 @@ body {
   color: #fafafa;
   -webkit-font-smoothing: antialiased;
   font-family: ui-sans-serif, system-ui, sans-serif;
+  /* Font variables injected by next/font on <html> */
+  --mono: var(--font-mono, ui-monospace, 'SF Mono', Menlo, monospace);
+  --display: var(--font-display, ui-sans-serif, system-ui, sans-serif);
 }
 
 ::selection {

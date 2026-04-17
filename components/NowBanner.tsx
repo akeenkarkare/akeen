@@ -19,7 +19,7 @@ export default function NowBanner() {
         background: "rgba(17, 19, 26, 0.75)",
         border: "1px solid rgba(34, 197, 94, 0.25)",
         borderRadius: 999,
-        fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
+        fontFamily: "var(--mono)",
         fontSize: 11,
         color: "#d1d5db",
         pointerEvents: "auto",

@@ -16,9 +16,6 @@ export default function Hero() {
         pointerEvents: "none",
         zIndex: 5,
         paddingBottom: 24,
-        background: "linear-gradient(to bottom, rgba(10, 12, 18, 0.85) 0%, rgba(10, 12, 18, 0.6) 70%, transparent 100%)",
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
       }}
     >
       {/* Top row: label + nav. pointer-events re-enabled on interactive bits only. */}
@@ -34,7 +31,7 @@ export default function Hero() {
         <div
           className="hero-label"
           style={{
-            fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
+            fontFamily: "var(--mono)",
             color: "#9ca3af",
           }}
         >
@@ -46,7 +43,7 @@ export default function Hero() {
             display: "flex",
             gap: 10,
             pointerEvents: "auto",
-            fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
+            fontFamily: "var(--mono)",
             fontSize: 11,
             flexWrap: "wrap",
           }}
@@ -66,7 +63,7 @@ export default function Hero() {
 
       <h1
         className="hero-title"
-        style={{ fontWeight: 700, margin: 0 }}
+        style={{ fontFamily: "var(--display)", fontWeight: 700, margin: 0 }}
       >
         I build things that
         <br />
@@ -86,7 +83,7 @@ export default function Hero() {
         style={{
           display: "flex",
           flexWrap: "wrap",
-          fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
+          fontFamily: "var(--mono)",
           fontSize: 11,
           color: "#9ca3af",
           pointerEvents: "auto",

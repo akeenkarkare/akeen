@@ -59,10 +59,10 @@ export default async function NowPage() {
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 40 }}>
         <div>
-          <div style={{ fontFamily: "ui-monospace, monospace", fontSize: 12, letterSpacing: 2, color: "#9ca3af" }}>
+          <div style={{ fontFamily: "var(--mono)", fontSize: 12, letterSpacing: 2, color: "#9ca3af" }}>
             AKEEN // NOW
           </div>
-          <h1 style={{ fontSize: 44, fontWeight: 700, margin: "6px 0 0", letterSpacing: -1 }}>
+          <h1 style={{ fontFamily: "var(--display)", fontSize: 44, fontWeight: 700, margin: "6px 0 0", letterSpacing: -1 }}>
             What I&apos;m doing, live.
           </h1>
           <p style={{ color: "#9ca3af", fontSize: 14, marginTop: 10 }}>
@@ -72,7 +72,7 @@ export default async function NowPage() {
         <Link
           href="/"
           style={{
-            fontFamily: "ui-monospace, monospace",
+            fontFamily: "var(--mono)",
             fontSize: 11,
             color: "#9ca3af",
             textDecoration: "none",
@@ -99,7 +99,7 @@ export default async function NowPage() {
                   display: "inline-block",
                 }}
               />
-              <span style={{ fontFamily: "ui-monospace, monospace", fontSize: 12, color: "#9ca3af" }}>
+              <span style={{ fontFamily: "var(--mono)", fontSize: 12, color: "#9ca3af" }}>
                 discord · {discord.status}
               </span>
             </div>
@@ -139,7 +139,7 @@ export default async function NowPage() {
               />
             )}
             <div>
-              <div style={{ fontFamily: "ui-monospace, monospace", fontSize: 11, color: "#9ca3af" }}>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 11, color: "#9ca3af" }}>
                 {spotify.isPlaying ? "▶ playing now" : "⏸ last played"}
               </div>
               <a
@@ -197,7 +197,7 @@ export default async function NowPage() {
                         target="_blank"
                         rel="noreferrer"
                         style={{
-                          fontFamily: "ui-monospace, monospace",
+                          fontFamily: "var(--mono)",
                           fontSize: 11,
                           color: "#9ca3af",
                           textDecoration: "none",
@@ -206,7 +206,7 @@ export default async function NowPage() {
                         {c.repo} · {c.sha}
                       </a>
                     </div>
-                    <div style={{ fontFamily: "ui-monospace, monospace", fontSize: 11, color: "#6b7280", whiteSpace: "nowrap" }}>
+                    <div style={{ fontFamily: "var(--mono)", fontSize: 11, color: "#6b7280", whiteSpace: "nowrap" }}>
                       {timeAgo(c.when)}
                     </div>
                   </li>
@@ -219,7 +219,7 @@ export default async function NowPage() {
         )}
       </Section>
 
-      <div style={{ marginTop: 60, color: "#4b5563", fontSize: 12, fontFamily: "ui-monospace, monospace" }}>
+      <div style={{ marginTop: 60, color: "#4b5563", fontSize: 12, fontFamily: "var(--mono)" }}>
         cached server-side · revalidates every 60s
       </div>
     </main>
@@ -239,7 +239,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
     >
       <h2
         style={{
-          fontFamily: "ui-monospace, monospace",
+          fontFamily: "var(--mono)",
           fontSize: 11,
           letterSpacing: 2,
           color: "#6b7280",
@@ -260,7 +260,7 @@ function Placeholder({ label }: { label: string }) {
       style={{
         color: "#6b7280",
         fontSize: 13,
-        fontFamily: "ui-monospace, monospace",
+        fontFamily: "var(--mono)",
         padding: "8px 0",
       }}
     >

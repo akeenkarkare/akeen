@@ -260,7 +260,7 @@ export default function PhysicsStage() {
 
         // tag
         ctx.fillStyle = b.color;
-        ctx.font = `500 ${Math.round(12 * scale)}px ui-monospace, 'SF Mono', Menlo, monospace`;
+        ctx.font = `500 ${Math.round(12 * scale)}px 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace`;
         ctx.textAlign = "left";
         ctx.textBaseline = "alphabetic";
         ctx.fillText(p.tag.toUpperCase(), -b.hw + pad, -b.hh + Math.round(32 * scale));
@@ -291,7 +291,7 @@ export default function PhysicsStage() {
 
         // hint
         ctx.fillStyle = "rgba(250,250,250,0.5)";
-        ctx.font = `${Math.round(11 * scale)}px ui-monospace, 'SF Mono', Menlo, monospace`;
+        ctx.font = `${Math.round(11 * scale)}px 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace`;
         ctx.fillText("click to open · drag to throw", -b.hw + pad, b.hh - Math.round(18 * scale));
 
         ctx.restore();

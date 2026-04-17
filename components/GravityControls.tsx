@@ -35,7 +35,7 @@ export default function GravityControls({ mode, onChange }: Props) {
         borderRadius: 999,
         display: "flex",
         gap: 4,
-        fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
+        fontFamily: "var(--mono)",
         fontSize: 11,
         zIndex: 10,
       }}

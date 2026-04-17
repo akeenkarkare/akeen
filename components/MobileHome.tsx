@@ -39,7 +39,7 @@ export default function MobileHome() {
       >
         <div
           style={{
-            fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
+            fontFamily: "var(--mono)",
             fontSize: 10,
             letterSpacing: 1.5,
             color: "#9ca3af",
@@ -51,7 +51,7 @@ export default function MobileHome() {
           style={{
             display: "flex",
             gap: 6,
-            fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
+            fontFamily: "var(--mono)",
             fontSize: 10.5,
           }}
         >
@@ -65,6 +65,7 @@ export default function MobileHome() {
       {/* Hero — compact */}
       <h1
         style={{
+          fontFamily: "var(--display)",
           fontSize: 34,
           fontWeight: 700,
           margin: 0,
@@ -98,7 +99,7 @@ export default function MobileHome() {
           display: "flex",
           flexWrap: "wrap",
           gap: 18,
-          fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
+          fontFamily: "var(--mono)",
           fontSize: 11,
           color: "#9ca3af",
         }}
@@ -113,7 +114,7 @@ export default function MobileHome() {
       <div
         style={{
           marginTop: 28,
-          fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
+          fontFamily: "var(--mono)",
           fontSize: 10.5,
           letterSpacing: 1.5,
           color: "#6b7280",
@@ -136,7 +137,7 @@ export default function MobileHome() {
           display: "flex",
           gap: 10,
           flexWrap: "wrap",
-          fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
+          fontFamily: "var(--mono)",
           fontSize: 11,
         }}
       >
@@ -165,7 +166,7 @@ export default function MobileHome() {
           marginTop: 28,
           color: "#4b5563",
           fontSize: 10.5,
-          fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
+          fontFamily: "var(--mono)",
           lineHeight: 1.6,
         }}
       >
@@ -210,7 +211,7 @@ function ProjectRow({
     >
       <div
         style={{
-          fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
+          fontFamily: "var(--mono)",
           fontSize: 10,
           letterSpacing: 1,
           color: project.color,

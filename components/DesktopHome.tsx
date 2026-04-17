@@ -27,7 +27,7 @@ export default function DesktopHome() {
           position: "fixed",
           bottom: 14,
           left: 16,
-          fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
+          fontFamily: "var(--mono)",
           fontSize: 10.5,
           color: "#6b7280",
           zIndex: 5,

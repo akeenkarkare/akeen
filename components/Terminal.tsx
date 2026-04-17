@@ -194,7 +194,7 @@ export default function Terminal({ open: openProp, onOpenChange }: TerminalProps
         border: "1px solid rgba(254, 243, 199, 0.2)",
         borderRadius: 8,
         boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
-        fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
+        fontFamily: "var(--mono)",
         fontSize: 13,
         color: "#e5e7eb",
         display: "flex",

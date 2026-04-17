@@ -109,7 +109,7 @@ export default function ProjectModal({
             border: `1px solid ${project.color}33`,
             background: "transparent",
             color: project.color,
-            fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
+            fontFamily: "var(--mono)",
             fontSize: 16,
             lineHeight: 1,
             cursor: "pointer",
@@ -132,7 +132,7 @@ export default function ProjectModal({
 
         <div
           style={{
-            fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
+            fontFamily: "var(--mono)",
             fontSize: 11,
             letterSpacing: 1,
             color: project.color,
@@ -144,6 +144,7 @@ export default function ProjectModal({
         </div>
         <h2
           style={{
+            fontFamily: "var(--display)",
             fontSize: "clamp(28px, 5vw, 36px)",
             fontWeight: 700,
             margin: 0,
@@ -184,7 +185,7 @@ export default function ProjectModal({
             <span
               key={s}
               style={{
-                fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
+                fontFamily: "var(--mono)",
                 fontSize: 11,
                 padding: "4px 10px",
                 border: `1px solid ${project.color}`,
@@ -214,7 +215,7 @@ export default function ProjectModal({
               target="_blank"
               rel="noreferrer"
               style={{
-                fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
+                fontFamily: "var(--mono)",
                 fontSize: 12,
                 padding: "10px 16px",
                 background: project.color,
@@ -236,7 +237,7 @@ export default function ProjectModal({
               border: `1px solid ${project.color}`,
               padding: "10px 16px",
               borderRadius: 6,
-              fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
+              fontFamily: "var(--mono)",
               fontSize: 12,
               cursor: "pointer",
               letterSpacing: 0.3,

@@ -15,9 +15,9 @@ export default function ConsoleGreeting() {
     if (w.__akeenGreeted) return;
     w.__akeenGreeted = true;
 
-    const big = "color: #fef3c7; font-family: ui-monospace, monospace; font-size: 13px; line-height: 1.3;";
-    const dim = "color: #9ca3af; font-family: ui-monospace, monospace; font-size: 12px;";
-    const hi  = "color: #22c55e; font-family: ui-monospace, monospace; font-size: 12px;";
+    const big = "color: #fef3c7; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; line-height: 1.3;";
+    const dim = "color: #9ca3af; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px;";
+    const hi  = "color: #22c55e; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px;";
 
     // eslint-disable-next-line no-console
     console.log(
