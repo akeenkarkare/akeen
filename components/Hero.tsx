@@ -15,6 +15,10 @@ export default function Hero() {
         color: "#fafafa",
         pointerEvents: "none",
         zIndex: 5,
+        paddingBottom: 24,
+        background: "linear-gradient(to bottom, rgba(10, 12, 18, 0.85) 0%, rgba(10, 12, 18, 0.6) 70%, transparent 100%)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
       }}
     >
       {/* Top row: label + nav. pointer-events re-enabled on interactive bits only. */}
