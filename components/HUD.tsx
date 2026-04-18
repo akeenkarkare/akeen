@@ -69,7 +69,7 @@ export default function HUD({ fps, bodies, contacts, stepMs, gravityMode }: Prop
     ["engine", "matter.js"],
     ["solver", "sequential impulse"],
     ["iterations", "8 · 8"],
-    ["bg sim", "n-body webgl2 (768 particles)"],
+    ["bg sim", "n-body webgl2 (1024 particles)"],
     ["coupling", "cards ↔ particles"],
     ["bodies", String(bodies)],
     ["contacts", String(contacts)],

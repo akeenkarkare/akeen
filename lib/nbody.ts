@@ -24,7 +24,7 @@ out float v_speed;
 void main() {
   vec2 ndc = a_pos / u_bounds;
   gl_Position = vec4(ndc, 0.0, 1.0);
-  gl_PointSize = 3.5;
+  gl_PointSize = 5.0;
   v_speed = length(a_vel);
 }
 `;
@@ -47,7 +47,7 @@ void main() {
   vec3 warm = vec3(1.00, 0.78, 0.40);
   vec3 col = mix(cold, warm, t);
 
-  outColor = vec4(col * a, a * 0.38);
+  outColor = vec4(col * a, a * 0.45);
 }
 `;
 
