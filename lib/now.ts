@@ -124,6 +124,143 @@ interface GithubEvent {
   payload?: { head?: string; commits?: { sha: string; message: string }[] };
 }
 
+// -------------------- GITHUB CONTRIBUTIONS --------------------
+
+export interface ContributionDay {
+  date: string;          // "2026-04-21"
+  count: number;         // contribution count
+  level: 0 | 1 | 2 | 3 | 4; // quartile intensity (0=none, 4=most)
+}
+
+export interface ContributionWeek {
+  days: ContributionDay[];
+}
+
+export interface GithubContributions {
+  totalThisYear: number;
+  weeks: ContributionWeek[];
+  currentStreak: number;
+  longestStreak: number;
+}
+
+/**
+ * Fetch the contribution calendar via GitHub's GraphQL API.
+ * Requires GH_TOKEN — returns null without one (the /now page
+ * hides the section gracefully).
+ */
+export async function getGithubContributions(
+  username: string
+): Promise<GithubContributions | null> {
+  const token = process.env.GH_TOKEN;
+  if (!token) return null;
+
+  try {
+    const query = `
+      query($login: String!) {
+        user(login: $login) {
+          contributionsCollection {
+            contributionCalendar {
+              totalContributions
+              weeks {
+                contributionDays {
+                  date
+                  contributionCount
+                  contributionLevel
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const res = await fetch("https://api.github.com/graphql", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ query, variables: { login: username } }),
+      next: { revalidate: 300 }, // 5 min cache — contributions don't change that fast
+    });
+
+    if (!res.ok) return null;
+    const json = await res.json();
+    const calendar =
+      json?.data?.user?.contributionsCollection?.contributionCalendar;
+    if (!calendar) return null;
+
+    const levelMap: Record<string, 0 | 1 | 2 | 3 | 4> = {
+      NONE: 0,
+      FIRST_QUARTILE: 1,
+      SECOND_QUARTILE: 2,
+      THIRD_QUARTILE: 3,
+      FOURTH_QUARTILE: 4,
+    };
+
+    const weeks: ContributionWeek[] = calendar.weeks.map(
+      (w: { contributionDays: { date: string; contributionCount: number; contributionLevel: string }[] }) => ({
+        days: w.contributionDays.map(
+          (d: { date: string; contributionCount: number; contributionLevel: string }) => ({
+            date: d.date,
+            count: d.contributionCount,
+            level: levelMap[d.contributionLevel] ?? 0,
+          })
+        ),
+      })
+    );
+
+    // Flatten days in chronological order to compute streaks
+    const allDays = weeks.flatMap((w) => w.days);
+    const { current, longest } = computeStreaks(allDays);
+
+    return {
+      totalThisYear: calendar.totalContributions,
+      weeks,
+      currentStreak: current,
+      longestStreak: longest,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Walk the calendar backwards from today to compute current and longest streaks.
+ * A "streak" is consecutive days with ≥1 contribution. Today is allowed to be
+ * 0 (the day isn't over yet) — in that case the streak starts from yesterday.
+ */
+function computeStreaks(days: ContributionDay[]): {
+  current: number;
+  longest: number;
+} {
+  let longest = 0;
+  let current = 0;
+  let streak = 0;
+  let foundCurrentStreak = false;
+
+  // Walk backwards from the most recent day
+  for (let i = days.length - 1; i >= 0; i--) {
+    if (days[i].count > 0) {
+      streak++;
+      longest = Math.max(longest, streak);
+      if (!foundCurrentStreak) current = streak;
+    } else {
+      // If we're on today and it's 0, skip it (day isn't over)
+      if (i === days.length - 1) continue;
+      if (!foundCurrentStreak) {
+        foundCurrentStreak = true;
+        current = streak;
+      }
+      streak = 0;
+    }
+  }
+  if (!foundCurrentStreak) current = streak;
+  longest = Math.max(longest, streak);
+
+  return { current, longest };
+}
+
 // -------------------- SPOTIFY --------------------
 
 export interface SpotifyTrack {

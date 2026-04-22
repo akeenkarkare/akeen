@@ -85,6 +85,10 @@ export class NBody {
   private attractors: { x: number; y: number; mass: number }[] = [];
   // Active shockwaves — radial velocity impulses that decay over time
   private shockwaves: { x: number; y: number; strength: number; age: number }[] = [];
+  // Timer for periodic "supernova" — scatters particles back out when they
+  // collapse into a central clump. Creates a breathe-in / breathe-out cycle.
+  private timeSinceExplosion = 0;
+  private readonly EXPLOSION_INTERVAL = 90; // seconds between explosions
 
   constructor(gl: WebGL2RenderingContext, count = 512) {
     this.gl = gl;
@@ -142,6 +146,31 @@ export class NBody {
     const n = this.count;
     const G = 1200;
     const SOFT2 = 400; // softening length squared (20px)
+
+    // --- Periodic supernova: scatter particles when they've been clumping ---
+    this.timeSinceExplosion += dt;
+    if (this.timeSinceExplosion >= this.EXPLOSION_INTERVAL) {
+      this.timeSinceExplosion = 0;
+      // Compute the centroid of all particles
+      let cx = 0, cy = 0;
+      for (let i = 0; i < n; i++) {
+        cx += s[i * 4];
+        cy += s[i * 4 + 1];
+      }
+      cx /= n;
+      cy /= n;
+      // Apply a strong radial push away from the centroid
+      for (let i = 0; i < n; i++) {
+        const dx = s[i * 4] - cx;
+        const dy = s[i * 4 + 1] - cy;
+        const d = Math.sqrt(dx * dx + dy * dy) + 1;
+        // Uniform-ish push: particles far from center get the same kick
+        // as particles near it (plus a bit of random scatter).
+        const strength = 200 + Math.random() * 120;
+        s[i * 4 + 2] += (dx / d) * strength;
+        s[i * 4 + 3] += (dy / d) * strength;
+      }
+    }
 
     // --- Apply shockwaves as one-shot velocity impulses ---
     // A shockwave is a brief radial push; we apply its full velocity impulse

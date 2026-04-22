@@ -39,7 +39,7 @@ export default function NBodyBackground() {
     resize();
     window.addEventListener("resize", resize);
 
-    const sim = new NBody(gl, 1024);
+    const sim = new NBody(gl, 768);
 
     let lastTime = performance.now();
     let raf = 0;

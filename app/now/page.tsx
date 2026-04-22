@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { getGithub, getSpotify, getDiscord } from "@/lib/now";
+import { getGithub, getGithubContributions, getSpotify, getDiscord } from "@/lib/now";
+import type { ContributionWeek } from "@/lib/now";
 
 export const revalidate = 60;
 
@@ -38,8 +39,9 @@ function activityVerb(type: number): string {
 }
 
 export default async function NowPage() {
-  const [github, spotify, discord] = await Promise.all([
+  const [github, contributions, spotify, discord] = await Promise.all([
     getGithub(GITHUB_USERNAME),
+    getGithubContributions(GITHUB_USERNAME),
     getSpotify(),
     getDiscord(),
   ]);
@@ -158,7 +160,88 @@ export default async function NowPage() {
         </Section>
       )}
 
-      {/* GitHub */}
+      {/* Contribution graph */}
+      {contributions && (
+        <Section title="Contributions">
+          {/* Stats row */}
+          <div
+            style={{
+              display: "flex",
+              gap: 28,
+              flexWrap: "wrap",
+              marginBottom: 20,
+              fontFamily: "var(--mono)",
+              fontSize: 12,
+            }}
+          >
+            <div>
+              <div style={{ color: "#fef3c7", fontSize: 24, fontWeight: 700 }}>
+                {contributions.totalThisYear.toLocaleString()}
+              </div>
+              <div style={{ color: "#6b7280", fontSize: 10, letterSpacing: 1, textTransform: "uppercase" }}>
+                contributions this year
+              </div>
+            </div>
+            <div>
+              <div style={{ color: "#22c55e", fontSize: 24, fontWeight: 700 }}>
+                {contributions.currentStreak}
+              </div>
+              <div style={{ color: "#6b7280", fontSize: 10, letterSpacing: 1, textTransform: "uppercase" }}>
+                day streak
+              </div>
+            </div>
+            <div>
+              <div style={{ color: "#e5e7eb", fontSize: 24, fontWeight: 700 }}>
+                {contributions.longestStreak}
+              </div>
+              <div style={{ color: "#6b7280", fontSize: 10, letterSpacing: 1, textTransform: "uppercase" }}>
+                longest streak
+              </div>
+            </div>
+          </div>
+
+          {/* Graph grid */}
+          <div
+            style={{
+              overflowX: "auto",
+              paddingBottom: 8,
+            }}
+          >
+            <ContributionGraph weeks={contributions.weeks} />
+          </div>
+
+          {/* Legend */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              marginTop: 10,
+              fontFamily: "var(--mono)",
+              fontSize: 10,
+              color: "#6b7280",
+              justifyContent: "flex-end",
+            }}
+          >
+            <span>less</span>
+            {[0, 1, 2, 3, 4].map((level) => (
+              <span
+                key={level}
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: 2,
+                  background: LEVEL_COLORS[level as 0 | 1 | 2 | 3 | 4],
+                  display: "inline-block",
+                }}
+              />
+            ))}
+            <span>more</span>
+          </div>
+        </Section>
+      )}
+
+      {/* GitHub commits */}
       <Section title="Recent commits">
         {github ? (
           <>
@@ -266,5 +349,56 @@ function Placeholder({ label }: { label: string }) {
     >
       {label}
     </div>
+  );
+}
+
+// ---- Contribution graph ----
+
+const LEVEL_COLORS: Record<0 | 1 | 2 | 3 | 4, string> = {
+  0: "rgba(255,255,255,0.06)",
+  1: "#0e4429",
+  2: "#006d32",
+  3: "#26a641",
+  4: "#39d353",
+};
+
+const CELL = 11;  // px — each square
+const GAP = 3;    // px — between squares
+
+function ContributionGraph({ weeks }: { weeks: ContributionWeek[] }) {
+  // The graph is 53 weeks wide × 7 rows tall (Sun–Sat).
+  // We render it as an inline SVG so it stays crisp at any zoom.
+  const cols = weeks.length;
+  const w = cols * (CELL + GAP) - GAP;
+  const h = 7 * (CELL + GAP) - GAP;
+
+  return (
+    <svg
+      width={w}
+      height={h}
+      viewBox={`0 0 ${w} ${h}`}
+      style={{ display: "block" }}
+      role="img"
+      aria-label="GitHub contribution graph"
+    >
+      {weeks.map((week, col) =>
+        week.days.map((day, row) => (
+          <rect
+            key={day.date}
+            x={col * (CELL + GAP)}
+            y={row * (CELL + GAP)}
+            width={CELL}
+            height={CELL}
+            rx={2}
+            ry={2}
+            fill={LEVEL_COLORS[day.level]}
+          >
+            <title>
+              {day.date}: {day.count} contribution{day.count !== 1 ? "s" : ""}
+            </title>
+          </rect>
+        ))
+      )}
+    </svg>
   );
 }
