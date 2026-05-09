@@ -33,3 +33,65 @@ export const physicsBus = {
   /** Updated by PhysicsStage when a hard impact happens. Drained by a shake layer. */
   screenShakeQueue: [] as { strength: number; bornAt: number }[],
 };
+
+// ---------------- Visualizer state ----------------
+
+/**
+ * Defaults match the look the site shipped with — anyone who never opens
+ * the visualizer panel sees the original aesthetic.
+ */
+export const VISUALIZER_DEFAULTS = {
+  particles: 768,
+  pointSize: 5.0,
+  brightness: 0.45,
+  gravity: 1200,
+  cardPull: 20,
+  hideUI: false,
+  /** Tracks whether the HUD details panel is currently shown.
+   *  Used by the VisualizerPanel to slide out of the way. Not user-facing,
+   *  not persisted to localStorage. */
+  hudShown: false,
+};
+
+export type VisualizerState = typeof VISUALIZER_DEFAULTS;
+
+/**
+ * Lightweight observable for visualizer settings. Both the NBody render
+ * loop (canvas, no React) and the panel UI (React) need to read/write
+ * these — using a plain object + subscribe() keeps it framework-agnostic.
+ */
+class VisualizerStore {
+  private state: VisualizerState = { ...VISUALIZER_DEFAULTS };
+  private listeners = new Set<(s: VisualizerState) => void>();
+  // Monotonic counter the NBody subscriber watches. When it ticks up, fire
+  // an explosion. Cheaper than maintaining a separate event channel.
+  private explodeCounter = 0;
+  private explodeListeners = new Set<() => void>();
+
+  get(): VisualizerState {
+    return this.state;
+  }
+
+  set(patch: Partial<VisualizerState>) {
+    this.state = { ...this.state, ...patch };
+    for (const fn of this.listeners) fn(this.state);
+  }
+
+  subscribe(fn: (s: VisualizerState) => void): () => void {
+    this.listeners.add(fn);
+    return () => this.listeners.delete(fn);
+  }
+
+  /** Fire-and-forget explosion request. NBody listener handles it. */
+  triggerExplode() {
+    this.explodeCounter++;
+    for (const fn of this.explodeListeners) fn();
+  }
+
+  subscribeExplode(fn: () => void): () => void {
+    this.explodeListeners.add(fn);
+    return () => this.explodeListeners.delete(fn);
+  }
+}
+
+export const visualizerStore = new VisualizerStore();

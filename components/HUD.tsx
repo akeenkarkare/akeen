@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import type { GravityMode } from "@/lib/bus";
+import { visualizerStore, type GravityMode } from "@/lib/bus";
 
 interface Props {
   fps: number;
@@ -42,7 +42,11 @@ export default function HUD({ fps, bodies, contacts, stepMs, gravityMode }: Prop
     };
     scheduleHide(3500);
 
-    const onActivity = () => {
+    const onActivity = (e: Event) => {
+      // Ignore activity inside the visualizer panel — sliding a slider
+      // shouldn't pop open the physics HUD on top of it.
+      const target = e.target as HTMLElement | null;
+      if (target?.closest('[data-visualizer-root="true"]')) return;
       setVisible(true);
       scheduleHide(2000);
     };
@@ -57,6 +61,14 @@ export default function HUD({ fps, bodies, contacts, stepMs, gravityMode }: Prop
       window.removeEventListener("pointerdown", onActivity);
     };
   }, [mounted, pinned, isMobile]);
+
+  // Mirror the HUD details panel visibility into the visualizer store so the
+  // VisualizerPanel (which sits below this) can slide out of the way when
+  // the HUD pops out. Plain effect — fires only when one of the deps changes.
+  const showPanel = visible || pinned;
+  useEffect(() => {
+    visualizerStore.set({ hudShown: showPanel });
+  }, [showPanel]);
 
   if (!mounted || isMobile) return null;
 
@@ -77,8 +89,6 @@ export default function HUD({ fps, bodies, contacts, stepMs, gravityMode }: Prop
     ["fps", String(fps)],
     ["gravity", gravityLabel],
   ];
-
-  const showPanel = visible || pinned;
 
   return createPortal(
     <>

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { NBody } from "@/lib/nbody";
-import { physicsBus } from "@/lib/bus";
+import { physicsBus, visualizerStore } from "@/lib/bus";
 
 /**
  * Renders the N-body gravitational particle field as a fixed fullscreen
@@ -39,7 +39,29 @@ export default function NBodyBackground() {
     resize();
     window.addEventListener("resize", resize);
 
-    const sim = new NBody(gl, 768);
+    // Initialize at the current visualizer settings (which may have been
+    // restored from localStorage by the panel before this mount).
+    const initial = visualizerStore.get();
+    const sim = new NBody(gl, initial.particles);
+    sim.setPointSize(initial.pointSize);
+    sim.setBrightness(initial.brightness);
+    sim.setGravity(initial.gravity);
+    sim.setCardPull(initial.cardPull);
+
+    // Push every visualizer change directly into the sim. This bypasses React
+    // re-renders entirely — the panel writes to the store, the store fires
+    // this listener, the listener mutates GPU state. The RAF loop picks up
+    // the new uniforms on the next frame.
+    const unsubscribe = visualizerStore.subscribe((state) => {
+      sim.setCount(state.particles);
+      sim.setPointSize(state.pointSize);
+      sim.setBrightness(state.brightness);
+      sim.setGravity(state.gravity);
+      sim.setCardPull(state.cardPull);
+    });
+    const unsubscribeExplode = visualizerStore.subscribeExplode(() => {
+      sim.explode();
+    });
 
     let lastTime = performance.now();
     let raf = 0;
@@ -74,6 +96,8 @@ export default function NBodyBackground() {
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
+      unsubscribe();
+      unsubscribeExplode();
     };
   }, []);
 
