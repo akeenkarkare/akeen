@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { visualizerStore, type VisualizerState } from "@/lib/bus";
+import { visualizerStore, type FieldMode, type VisualizerState } from "@/lib/bus";
 import { useVisualizer } from "@/lib/useVisualizer";
 
 const STORAGE_KEY = "akeen-portfolio:visualizer";
@@ -61,6 +61,13 @@ export default function VisualizerPanel() {
         }
         if (typeof saved.cardPull === "number") {
           safe.cardPull = clamp(saved.cardPull, 0, 200);
+        }
+        if (
+          saved.fieldMode === "gravity" ||
+          saved.fieldMode === "flow" ||
+          saved.fieldMode === "electric"
+        ) {
+          safe.fieldMode = saved.fieldMode;
         }
         if (typeof saved.hideUI === "boolean") {
           safe.hideUI = saved.hideUI;
@@ -170,6 +177,34 @@ export default function VisualizerPanel() {
             >
               ×
             </button>
+          </div>
+
+          {/* Field mode picker — three-segment toggle. */}
+          <div
+            style={{
+              display: "flex",
+              gap: 4,
+              padding: 3,
+              background: "rgba(255, 255, 255, 0.04)",
+              borderRadius: 6,
+              marginBottom: 14,
+            }}
+          >
+            <ModeButton
+              active={state.fieldMode === "gravity"}
+              onClick={() => visualizerStore.set({ fieldMode: "gravity" })}
+              label="gravity"
+            />
+            <ModeButton
+              active={state.fieldMode === "flow"}
+              onClick={() => visualizerStore.set({ fieldMode: "flow" })}
+              label="flow"
+            />
+            <ModeButton
+              active={state.fieldMode === "electric"}
+              onClick={() => visualizerStore.set({ fieldMode: "electric" })}
+              label="electric"
+            />
           </div>
 
           <Slider
@@ -351,6 +386,38 @@ function Slider({
         }}
       />
     </div>
+  );
+}
+
+function ModeButton({
+  active,
+  onClick,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        flex: 1,
+        padding: "5px 0",
+        border: "none",
+        borderRadius: 4,
+        background: active ? "#fef3c7" : "transparent",
+        color: active ? "#0a0c12" : "#9ca3af",
+        fontFamily: "inherit",
+        fontSize: 10,
+        letterSpacing: 0.5,
+        fontWeight: active ? 600 : 400,
+        cursor: "pointer",
+        transition: "background 120ms, color 120ms",
+      }}
+    >
+      {label}
+    </button>
   );
 }
 

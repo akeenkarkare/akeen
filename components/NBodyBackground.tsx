@@ -47,6 +47,7 @@ export default function NBodyBackground() {
     sim.setBrightness(initial.brightness);
     sim.setGravity(initial.gravity);
     sim.setCardPull(initial.cardPull);
+    sim.setMode(initial.fieldMode);
 
     // Push every visualizer change directly into the sim. This bypasses React
     // re-renders entirely — the panel writes to the store, the store fires
@@ -58,6 +59,7 @@ export default function NBodyBackground() {
       sim.setBrightness(state.brightness);
       sim.setGravity(state.gravity);
       sim.setCardPull(state.cardPull);
+      sim.setMode(state.fieldMode);
     });
     const unsubscribeExplode = visualizerStore.subscribeExplode(() => {
       sim.explode();

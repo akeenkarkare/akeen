@@ -40,12 +40,16 @@ export const physicsBus = {
  * Defaults match the look the site shipped with — anyone who never opens
  * the visualizer panel sees the original aesthetic.
  */
+/** Which physics field drives the particle motion. */
+export type FieldMode = "gravity" | "flow" | "electric";
+
 export const VISUALIZER_DEFAULTS = {
   particles: 768,
   pointSize: 5.0,
   brightness: 0.45,
   gravity: 1200,
   cardPull: 20,
+  fieldMode: "gravity" as FieldMode,
   hideUI: false,
   /** Tracks whether the HUD details panel is currently shown.
    *  Used by the VisualizerPanel to slide out of the way. Not user-facing,

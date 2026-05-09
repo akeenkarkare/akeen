@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { visualizerStore, type GravityMode } from "@/lib/bus";
+import { useVisualizer } from "@/lib/useVisualizer";
 
 interface Props {
   fps: number;
@@ -26,6 +27,10 @@ export default function HUD({ fps, bodies, contacts, stepMs, gravityMode }: Prop
   const [pinned, setPinned] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const hideTimerRef = useRef<number | null>(null);
+
+  // Read the current field mode so the HUD reflects whatever the visualizer
+  // is showing. Re-renders the HUD when the user picks a different mode.
+  const { fieldMode } = useVisualizer();
 
   useEffect(() => {
     setMounted(true);
@@ -77,11 +82,16 @@ export default function HUD({ fps, bodies, contacts, stepMs, gravityMode }: Prop
       : gravityMode === "up" ? "-1800 px/s²"
         : "+1800 px/s²";
 
+  const fieldLabel =
+    fieldMode === "flow" ? "vector flow (curl noise)"
+      : fieldMode === "electric" ? "coulomb (charged)"
+        : "n-body gravity";
+
   const rows: [string, string][] = [
     ["engine", "matter.js"],
     ["solver", "sequential impulse"],
     ["iterations", "8 · 8"],
-    ["bg sim", "n-body webgl2 (768 particles)"],
+    ["field", fieldLabel],
     ["coupling", "cards ↔ particles"],
     ["bodies", String(bodies)],
     ["contacts", String(contacts)],
