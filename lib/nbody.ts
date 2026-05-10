@@ -523,11 +523,13 @@ export class NBody {
     const charges = this.charges!;
     const s = this.state;
     const n = this.count;
-    // Coulomb constant (tuned for the visual we want, not real physics)
-    const K = this.gravity * 0.5;
-    const SOFT2 = 600;
-    const CARD_SOFT2 = 200 * 200;
-    const CARD_K = this.cardPull * 1.5;
+    // Coulomb constant. Higher than gravity so charge interactions dominate
+    // and pairs visibly whip around instead of drifting slowly.
+    const K = this.gravity * 1.8;
+    // Tighter softening so opposite charges accelerate harder before flattening.
+    const SOFT2 = 200;
+    const CARD_SOFT2 = 140 * 140;
+    const CARD_K = this.cardPull * 2.5;
 
     for (let i = 0; i < n; i++) {
       let fx = 0, fy = 0;
@@ -563,8 +565,10 @@ export class NBody {
         fy += sign * k * dy * invR3;
       }
 
-      s[i * STRIDE + 2] = (s[i * STRIDE + 2] + fx * dt) * 0.995;
-      s[i * STRIDE + 3] = (s[i * STRIDE + 3] + fy * dt) * 0.995;
+      // Lighter drag than gravity mode — keeps high-speed pairs whipping
+      // around instead of bleeding off energy in 2 seconds.
+      s[i * STRIDE + 2] = (s[i * STRIDE + 2] + fx * dt) * 0.998;
+      s[i * STRIDE + 3] = (s[i * STRIDE + 3] + fy * dt) * 0.998;
     }
   }
 

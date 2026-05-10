@@ -320,20 +320,61 @@ export default function VisualizerPanel() {
         <button
           onClick={() => setOpen(true)}
           style={{
-            background: "rgba(10, 12, 18, 0.72)",
-            border: "1px solid rgba(255,255,255,0.08)",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            background: "rgba(254, 243, 199, 0.08)",
+            border: "1px solid rgba(254, 243, 199, 0.45)",
             borderRadius: 999,
-            padding: "6px 12px",
-            color: state.hideUI ? "#fef3c7" : "#9ca3af",
+            padding: "9px 16px",
+            color: "#fef3c7",
             fontFamily: "inherit",
-            fontSize: 10.5,
+            fontSize: 12,
+            fontWeight: 600,
             letterSpacing: 1,
             cursor: "pointer",
-            backdropFilter: "blur(8px)",
-            WebkitBackdropFilter: "blur(8px)",
+            backdropFilter: "blur(10px)",
+            WebkitBackdropFilter: "blur(10px)",
+            boxShadow:
+              "0 0 0 0 rgba(254, 243, 199, 0.4), 0 4px 18px rgba(254, 243, 199, 0.15)",
+            animation: "vp-pulse 2.4s ease-in-out infinite",
+            transition: "transform 120ms, background 120ms",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "translateY(-1px)";
+            e.currentTarget.style.background = "rgba(254, 243, 199, 0.14)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "";
+            e.currentTarget.style.background = "rgba(254, 243, 199, 0.08)";
           }}
         >
-          {state.hideUI ? "● visualizer" : "○ visualizer"}
+          <span
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: "50%",
+              background: "#fef3c7",
+              boxShadow: "0 0 8px #fef3c7",
+              display: "inline-block",
+            }}
+          />
+          play with the simulation
+          <span style={{ opacity: 0.7, fontWeight: 400 }}>(V)</span>
+          <style>{`
+            @keyframes vp-pulse {
+              0%, 100% {
+                box-shadow:
+                  0 0 0 0 rgba(254, 243, 199, 0.45),
+                  0 4px 18px rgba(254, 243, 199, 0.15);
+              }
+              50% {
+                box-shadow:
+                  0 0 0 6px rgba(254, 243, 199, 0),
+                  0 4px 18px rgba(254, 243, 199, 0.15);
+              }
+            }
+          `}</style>
         </button>
       )}
     </div>,
