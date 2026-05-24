@@ -55,6 +55,7 @@ export default function MobileHome() {
             fontSize: 10.5,
           }}
         >
+          <MobileNavLink href="/blog">/blog</MobileNavLink>
           <MobileNavLink href="/now">/now</MobileNavLink>
           <MobileNavLink href="/akeen-karkare-resume.pdf" download>
             resume ↓

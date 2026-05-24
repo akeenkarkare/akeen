@@ -48,6 +48,7 @@ export default function Hero() {
             flexWrap: "wrap",
           }}
         >
+          <NavLink href="/blog">/blog</NavLink>
           <NavLink href="/now">/now</NavLink>
           <NavLink href="/akeen-karkare-resume.pdf" download>
             resume ↓
