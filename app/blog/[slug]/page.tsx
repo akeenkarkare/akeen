@@ -124,7 +124,7 @@ export default async function BlogPost({
           ← all posts
         </Link>
         <Link href="/" style={{ color: "#fef3c7", textDecoration: "none" }}>
-          akeenkarkare.com →
+          Back to main page →
         </Link>
       </footer>
     </main>
