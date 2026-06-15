@@ -43,7 +43,7 @@ export default function DesktopHome() {
         <footer
           style={{
             position: "fixed",
-            top: 62,
+            top: 82,
             left: "50%",
             transform: "translateX(-50%)",
             fontFamily: "var(--mono)",
@@ -52,7 +52,8 @@ export default function DesktopHome() {
             zIndex: 5,
             pointerEvents: "none",
             lineHeight: 1.6,
-            maxWidth: 460,
+            maxWidth: 620,
+            whiteSpace: "nowrap",
             textAlign: "center",
             padding: "8px 14px",
             borderRadius: 10,
