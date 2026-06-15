@@ -14,10 +14,11 @@ interface Props {
 }
 
 /**
- * Physics debug overlay. Visible on mount, then auto-hides after a few
- * seconds so the portfolio doesn't feel like a dev console. Any user
- * activity (mouse move, key press, pointer) re-shows it briefly, and a
- * small corner toggle pill lets people pin it open.
+ * Physics debug overlay. Visible briefly on mount as an intro, then auto-hides
+ * so the portfolio doesn't feel like a dev console. After that it only opens
+ * when the user clicks the corner pill to pin it — we deliberately do NOT
+ * re-show it on stray pointer/key activity, since clicking and dragging cards
+ * would otherwise pop it open constantly.
  *
  * Hidden entirely on small screens — no room.
  */
@@ -37,33 +38,19 @@ export default function HUD({ fps, bodies, contacts, stepMs, gravityMode }: Prop
     setIsMobile(window.matchMedia("(max-width: 720px)").matches);
   }, []);
 
-  // Auto-hide after 3.5s initially, and 2s after any activity bump.
+  // Show once on mount as an intro, then auto-hide after 3.5s. We intentionally
+  // don't re-show on activity — the corner pill is the only way to reopen it,
+  // so playing with the cards never pops the debug panel.
   useEffect(() => {
-    if (!mounted || pinned || isMobile) return;
+    if (!mounted || isMobile) return;
+    if (pinned) return; // pinned stays open; nothing to schedule
 
-    const scheduleHide = (ms: number) => {
-      if (hideTimerRef.current != null) window.clearTimeout(hideTimerRef.current);
-      hideTimerRef.current = window.setTimeout(() => setVisible(false), ms);
-    };
-    scheduleHide(3500);
-
-    const onActivity = (e: Event) => {
-      // Ignore activity inside the visualizer panel — sliding a slider
-      // shouldn't pop open the physics HUD on top of it.
-      const target = e.target as HTMLElement | null;
-      if (target?.closest('[data-visualizer-root="true"]')) return;
-      setVisible(true);
-      scheduleHide(2000);
-    };
-    // Don't listen to pointermove — it fires constantly over the physics sim.
-    // Key presses and pointerdown are enough to signal real activity.
-    window.addEventListener("keydown", onActivity);
-    window.addEventListener("pointerdown", onActivity);
+    setVisible(true);
+    if (hideTimerRef.current != null) window.clearTimeout(hideTimerRef.current);
+    hideTimerRef.current = window.setTimeout(() => setVisible(false), 3500);
 
     return () => {
       if (hideTimerRef.current != null) window.clearTimeout(hideTimerRef.current);
-      window.removeEventListener("keydown", onActivity);
-      window.removeEventListener("pointerdown", onActivity);
     };
   }, [mounted, pinned, isMobile]);
 

@@ -51,7 +51,13 @@ export default function DesktopHome() {
             zIndex: 5,
             pointerEvents: "none",
             lineHeight: 1.6,
-            maxWidth: 420,
+            maxWidth: 360,
+            padding: "8px 12px",
+            borderRadius: 10,
+            background: "rgba(10, 12, 18, 0.7)",
+            backdropFilter: "blur(10px)",
+            WebkitBackdropFilter: "blur(10px)",
+            border: "1px solid rgba(255,255,255,0.06)",
           }}
         >
           <div style={{ color: "#9ca3af" }}>
