@@ -55,10 +55,11 @@ export class World {
   matterWorld: Matter.World;
   /** Invisible static walls — rebuilt on resize */
   private walls: Matter.Body[] = [];
-  /** Static body matching the hero section height — blocks cards from entering */
+  /** Static body matching the hero text panel — blocks cards from entering */
   private heroBarrier: Matter.Body | null = null;
-  /** Last hero height set — used by PhysicsStage to detect changes */
-  heroBarrierHeight = 0;
+  /** Last hero box set — used by PhysicsStage to detect changes */
+  heroBarrierW = 0;
+  heroBarrierH = 0;
   /** Heavy-collision events surface here for UI effects (screen shake, shockwaves) */
   heavyImpacts: { x: number; y: number; strength: number }[] = [];
   /** Number of active contacts last step — for the HUD */
@@ -121,22 +122,27 @@ export class World {
     }
   }
 
-  /** Add or update a static rectangle at the top of the viewport matching the hero panel height. */
-  setHeroBarrier(heroHeight: number) {
+  /**
+   * Add or update a static rectangle matching the hero text panel, anchored to
+   * the top-left corner (spans 0..w horizontally, 0..h vertically). The right
+   * side of the viewport stays open so cards can drift up past the panel.
+   */
+  setHeroBarrier(w: number, h: number) {
     if (this.heroBarrier) {
       Matter.Composite.remove(this.matterWorld, this.heroBarrier);
       this.heroBarrier = null;
     }
-    if (heroHeight <= 0) return;
+    this.heroBarrierW = w;
+    this.heroBarrierH = h;
+    if (w <= 0 || h <= 0) return;
     const barrier = Matter.Bodies.rectangle(
-      this.cfg.width / 2,
-      heroHeight / 2,
-      this.cfg.width * 2,
-      heroHeight,
+      w / 2,
+      h / 2,
+      w,
+      h,
       { isStatic: true, friction: 0.3, restitution: 0.25, label: "heroBarrier" }
     );
     this.heroBarrier = barrier;
-    this.heroBarrierHeight = heroHeight;
     Matter.Composite.add(this.matterWorld, barrier);
   }
 
@@ -145,11 +151,8 @@ export class World {
     this.cfg.width = width;
     this.cfg.height = height;
     this.buildWalls();
-    // Rebuild hero barrier at new width if one exists
-    if (this.heroBarrier) {
-      const heroHeight = this.heroBarrier.position.y * 2;
-      this.setHeroBarrier(heroHeight);
-    }
+    // The hero barrier is anchored top-left and refreshed by Hero's
+    // ResizeObserver whenever the panel reflows, so it needs no rebuild here.
   }
 
   add(b: Body) {

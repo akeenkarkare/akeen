@@ -32,8 +32,13 @@ export const physicsBus = {
   shockwaves: [] as Shockwave[],
   /** Updated by PhysicsStage when a hard impact happens. Drained by a shake layer. */
   screenShakeQueue: [] as { strength: number; bornAt: number }[],
-  /** Pixel height of the hero section — written by Hero, read by PhysicsStage to build a static barrier. */
-  heroHeight: 0,
+  /**
+   * Bounding box of the hero text panel in viewport pixels, written by Hero and
+   * read by PhysicsStage to build a static barrier. The panel is anchored to the
+   * top-left, so the barrier spans (0..w, 0..h) — leaving the right side open for
+   * cards to float up into. {w:0,h:0} until Hero measures itself.
+   */
+  heroBox: { w: 0, h: 0 },
 };
 
 // ---------------- Visualizer state ----------------

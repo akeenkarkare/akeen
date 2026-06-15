@@ -5,22 +5,27 @@ import NowBanner from "./NowBanner";
 import { physicsBus } from "@/lib/bus";
 
 export default function Hero() {
-  const wrapRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
+  // Measure the frosted text panel's bounding box and publish it to the bus so
+  // PhysicsStage can build a static barrier that matches exactly. The panel is
+  // anchored to the top-left, so its right/bottom edges define the barrier.
   useEffect(() => {
-    const el = wrapRef.current;
+    const el = panelRef.current;
     if (!el) return;
-    const ro = new ResizeObserver(() => {
-      physicsBus.heroHeight = el.offsetHeight;
-    });
+    const publish = () => {
+      const r = el.getBoundingClientRect();
+      // A few px of margin so cards rest against the panel without clipping text.
+      physicsBus.heroBox = { w: Math.round(r.right + 14), h: Math.round(r.bottom + 14) };
+    };
+    const ro = new ResizeObserver(publish);
     ro.observe(el);
-    physicsBus.heroHeight = el.offsetHeight;
+    publish();
     return () => ro.disconnect();
   }, []);
 
   return (
     <div
-      ref={wrapRef}
       className="hero-wrap"
       style={{
         position: "fixed",
@@ -32,89 +37,93 @@ export default function Hero() {
         pointerEvents: "none",
         zIndex: 5,
         paddingBottom: 24,
-        background: "rgba(10, 12, 18, 0.82)",
-        backdropFilter: "blur(14px)",
-        WebkitBackdropFilter: "blur(14px)",
-        borderBottom: "1px solid rgba(255,255,255,0.06)",
       }}
     >
-      {/* Top row: label + nav. pointer-events re-enabled on interactive bits only. */}
-      <div
+      {/* Nav floats top-right, independent of the text panel. */}
+      <nav
+        className="hero-nav"
         style={{
+          position: "absolute",
+          top: 40,
+          right: 48,
           display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          gap: 16,
+          gap: 10,
+          pointerEvents: "auto",
+          fontFamily: "var(--mono)",
+          fontSize: 11,
           flexWrap: "wrap",
+          justifyContent: "flex-end",
+        }}
+      >
+        <NavLink href="/blog">/blog</NavLink>
+        <NavLink href="/now">/now</NavLink>
+        <NavLink href="/akeen-karkare-resume.pdf" download>
+          resume ↓
+        </NavLink>
+        <NavLink href="https://github.com/akeenkarkare" external>
+          github
+        </NavLink>
+        <NavLink href="https://linkedin.com/in/akeen-karkare" external>
+          linkedin
+        </NavLink>
+      </nav>
+
+      {/* Frosted panel that hugs the text — this is the solid object cards hit. */}
+      <div
+        ref={panelRef}
+        className="hero-panel"
+        style={{
+          width: "fit-content",
+          maxWidth: "min(920px, 70vw)",
+          padding: "22px 30px 26px",
+          borderRadius: 16,
+          background: "rgba(10, 12, 18, 0.82)",
+          backdropFilter: "blur(14px)",
+          WebkitBackdropFilter: "blur(14px)",
+          border: "1px solid rgba(255,255,255,0.07)",
         }}
       >
         <div
           className="hero-label"
-          style={{
-            fontFamily: "var(--mono)",
-            color: "#9ca3af",
-          }}
+          style={{ fontFamily: "var(--mono)", color: "#9ca3af" }}
         >
           AKEEN KARKARE // STONY BROOK &apos;27 // PHYSICS + EE
         </div>
-        <nav
-          className="hero-nav"
+
+        <h1
+          className="hero-title"
+          style={{ fontFamily: "var(--display)", fontWeight: 700, margin: 0 }}
+        >
+          I build things that
+          <br />
+          shouldn&apos;t exist yet.
+        </h1>
+        <p className="hero-para" style={{ color: "#d1d5db", marginBottom: 0 }}>
+          Physics major at Stony Brook. I ship across stacks — coding duels used by
+          thousands, a Discord bot serving 70k, ML for exoplanet transits, autonomous
+          Jetson robots. The cards below are rigid bodies drifting in a hand-written
+          768-particle gravity field. Drag them. Throw them. Click to read.
+        </p>
+        <NowBanner />
+
+        {/* Stats strip */}
+        <div
+          className="hero-stats"
           style={{
             display: "flex",
-            gap: 10,
-            pointerEvents: "auto",
+            flexWrap: "wrap",
             fontFamily: "var(--mono)",
             fontSize: 11,
-            flexWrap: "wrap",
+            color: "#9ca3af",
+            pointerEvents: "auto",
           }}
         >
-          <NavLink href="/blog">/blog</NavLink>
-          <NavLink href="/now">/now</NavLink>
-          <NavLink href="/akeen-karkare-resume.pdf" download>
-            resume ↓
-          </NavLink>
-          <NavLink href="https://github.com/akeenkarkare" external>
-            github
-          </NavLink>
-          <NavLink href="https://linkedin.com/in/akeen-karkare" external>
-            linkedin
-          </NavLink>
-        </nav>
-      </div>
-
-      <h1
-        className="hero-title"
-        style={{ fontFamily: "var(--display)", fontWeight: 700, margin: 0 }}
-      >
-        I build things that
-        <br />
-        shouldn&apos;t exist yet.
-      </h1>
-      <p className="hero-para" style={{ color: "#d1d5db", marginBottom: 0 }}>
-        Physics major at Stony Brook. I ship across stacks — coding duels used by
-        thousands, a Discord bot serving 70k, ML for exoplanet transits, autonomous
-        Jetson robots. The cards below are rigid bodies drifting in a hand-written
-        768-particle gravity field. Drag them. Throw them. Click to read.
-      </p>
-      <NowBanner />
-
-      {/* Stats strip */}
-      <div
-        className="hero-stats"
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          fontFamily: "var(--mono)",
-          fontSize: 11,
-          color: "#9ca3af",
-          pointerEvents: "auto",
-        }}
-      >
-        <Stat value="1000+" label="yeetcode users" />
-        <Stat value="70,000+" label="asteroid users" />
-        <Stat value="200+" label="discord servers" />
-        <Stat value="1st" label="sbuhacks 2025" />
-        <Stat value="150/wk" label="grader throughput" />
+          <Stat value="1000+" label="yeetcode users" />
+          <Stat value="70,000+" label="asteroid users" />
+          <Stat value="200+" label="discord servers" />
+          <Stat value="1st" label="sbuhacks 2025" />
+          <Stat value="150/wk" label="grader throughput" />
+        </div>
       </div>
     </div>
   );
