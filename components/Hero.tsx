@@ -1,10 +1,26 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import NowBanner from "./NowBanner";
+import { physicsBus } from "@/lib/bus";
 
 export default function Hero() {
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => {
+      physicsBus.heroHeight = el.offsetHeight;
+    });
+    ro.observe(el);
+    physicsBus.heroHeight = el.offsetHeight;
+    return () => ro.disconnect();
+  }, []);
+
   return (
     <div
+      ref={wrapRef}
       className="hero-wrap"
       style={{
         position: "fixed",
@@ -16,6 +32,10 @@ export default function Hero() {
         pointerEvents: "none",
         zIndex: 5,
         paddingBottom: 24,
+        background: "rgba(10, 12, 18, 0.82)",
+        backdropFilter: "blur(14px)",
+        WebkitBackdropFilter: "blur(14px)",
+        borderBottom: "1px solid rgba(255,255,255,0.06)",
       }}
     >
       {/* Top row: label + nav. pointer-events re-enabled on interactive bits only. */}

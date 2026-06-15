@@ -32,6 +32,8 @@ export const physicsBus = {
   shockwaves: [] as Shockwave[],
   /** Updated by PhysicsStage when a hard impact happens. Drained by a shake layer. */
   screenShakeQueue: [] as { strength: number; bornAt: number }[],
+  /** Pixel height of the hero section — written by Hero, read by PhysicsStage to build a static barrier. */
+  heroHeight: 0,
 };
 
 // ---------------- Visualizer state ----------------

@@ -155,8 +155,19 @@ export default function PhysicsStage() {
       world.add(body);
     });
 
+    // Poll physicsBus.heroHeight until the Hero component measures itself,
+    // then set the static barrier. ResizeObserver in Hero keeps the bus value fresh.
+    const heroPoller = setInterval(() => {
+      const h = physicsBus.heroHeight;
+      if (h > 0 && world.heroBarrierHeight !== h) {
+        world.heroBarrierHeight = h;
+        world.setHeroBarrier(h);
+      }
+    }, 100);
+
     return () => {
       window.removeEventListener("resize", resize);
+      clearInterval(heroPoller);
     };
   }, []);
 

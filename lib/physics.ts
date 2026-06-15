@@ -55,6 +55,10 @@ export class World {
   matterWorld: Matter.World;
   /** Invisible static walls — rebuilt on resize */
   private walls: Matter.Body[] = [];
+  /** Static body matching the hero section height — blocks cards from entering */
+  private heroBarrier: Matter.Body | null = null;
+  /** Last hero height set — used by PhysicsStage to detect changes */
+  heroBarrierHeight = 0;
   /** Heavy-collision events surface here for UI effects (screen shake, shockwaves) */
   heavyImpacts: { x: number; y: number; strength: number }[] = [];
   /** Number of active contacts last step — for the HUD */
@@ -117,11 +121,35 @@ export class World {
     }
   }
 
+  /** Add or update a static rectangle at the top of the viewport matching the hero panel height. */
+  setHeroBarrier(heroHeight: number) {
+    if (this.heroBarrier) {
+      Matter.Composite.remove(this.matterWorld, this.heroBarrier);
+      this.heroBarrier = null;
+    }
+    if (heroHeight <= 0) return;
+    const barrier = Matter.Bodies.rectangle(
+      this.cfg.width / 2,
+      heroHeight / 2,
+      this.cfg.width * 2,
+      heroHeight,
+      { isStatic: true, friction: 0.3, restitution: 0.25, label: "heroBarrier" }
+    );
+    this.heroBarrier = barrier;
+    this.heroBarrierHeight = heroHeight;
+    Matter.Composite.add(this.matterWorld, barrier);
+  }
+
   /** Call on window resize so walls stay glued to the viewport edges */
   resize(width: number, height: number) {
     this.cfg.width = width;
     this.cfg.height = height;
     this.buildWalls();
+    // Rebuild hero barrier at new width if one exists
+    if (this.heroBarrier) {
+      const heroHeight = this.heroBarrier.position.y * 2;
+      this.setHeroBarrier(heroHeight);
+    }
   }
 
   add(b: Body) {
