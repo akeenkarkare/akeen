@@ -123,6 +123,19 @@ export default function PhysicsStage() {
     const CARD_W = isMobile ? CARD_W_MOBILE : CARD_W_DESKTOP;
     const CARD_H = isMobile ? CARD_H_MOBILE : CARD_H_DESKTOP;
 
+    // Estimated hero-panel height used BOTH for the spawn floor and the initial
+    // barrier, so cards never spawn inside the barrier (a deep static-vs-dynamic
+    // overlap would make matter.js eject them explosively on load). The exact
+    // height arrives later from Hero's ResizeObserver and only nudges things by
+    // a few px. Disabled on mobile, where the layout is a vertical scroll-stack
+    // that a full-width barrier would trap.
+    const heroEst = isMobile
+      ? 0
+      : Math.min(540, Math.round(window.innerHeight * 0.6));
+    if (!isMobile) {
+      world.setHeroBarrier(heroEst);
+    }
+
     // Seed cards in an arc above the ground with a small initial velocity.
     // On mobile we stack them more vertically since they won't fit side-by-side.
     const centerX = window.innerWidth / 2;
@@ -136,8 +149,9 @@ export default function PhysicsStage() {
         x = centerX + (Math.random() - 0.5) * 40;
         y = 260 + i * (CARD_H + 30);
       } else {
+        // Just below the hero barrier so cards rain down into the open lower area.
         x = centerX + t * (CARD_W + 40) * 1.1;
-        y = 180 + Math.abs(t) * 40;
+        y = heroEst + CARD_H / 2 + 30 + Math.abs(t) * 40;
       }
       const body = makeBody({
         id: p.id,
@@ -155,19 +169,21 @@ export default function PhysicsStage() {
       world.add(body);
     });
 
-    // Poll physicsBus.heroHeight until the Hero component measures itself,
-    // then set the static barrier. ResizeObserver in Hero keeps the bus value fresh.
-    const heroPoller = setInterval(() => {
-      const h = physicsBus.heroHeight;
-      if (h > 0 && world.heroBarrierHeight !== h) {
-        world.heroBarrierHeight = h;
-        world.setHeroBarrier(h);
-      }
-    }, 100);
+    // Refine the barrier to Hero's exact measured height once its ResizeObserver
+    // reports in. Skipped on mobile (no barrier there). We never let the refined
+    // barrier exceed the spawn estimate, so settled cards can't be re-ejected.
+    const heroPoller = isMobile
+      ? null
+      : setInterval(() => {
+          const h = physicsBus.heroHeight;
+          if (h > 0 && world.heroBarrierHeight !== h) {
+            world.setHeroBarrier(Math.min(h, heroEst));
+          }
+        }, 100);
 
     return () => {
       window.removeEventListener("resize", resize);
-      clearInterval(heroPoller);
+      if (heroPoller) clearInterval(heroPoller);
     };
   }, []);
 
