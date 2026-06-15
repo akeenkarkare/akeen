@@ -77,10 +77,10 @@ export default function Hero() {
           maxWidth: "min(920px, 70vw)",
           padding: "22px 30px 26px",
           borderRadius: 16,
-          background: "rgba(10, 12, 18, 0.82)",
-          backdropFilter: "blur(14px)",
-          WebkitBackdropFilter: "blur(14px)",
-          border: "1px solid rgba(255,255,255,0.07)",
+          background: "rgba(10, 12, 18, 0.52)",
+          backdropFilter: "blur(18px) saturate(120%)",
+          WebkitBackdropFilter: "blur(18px) saturate(120%)",
+          border: "1px solid rgba(255,255,255,0.08)",
         }}
       >
         <div

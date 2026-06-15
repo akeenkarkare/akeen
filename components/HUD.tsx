@@ -38,21 +38,19 @@ export default function HUD({ fps, bodies, contacts, stepMs, gravityMode }: Prop
     setIsMobile(window.matchMedia("(max-width: 720px)").matches);
   }, []);
 
-  // Show once on mount as an intro, then auto-hide after 3.5s. We intentionally
-  // don't re-show on activity — the corner pill is the only way to reopen it,
-  // so playing with the cards never pops the debug panel.
+  // Show once on mount as an intro, then auto-hide after 3.5s. Runs ONLY on
+  // mount (not when `pinned` changes) — otherwise unpinning would re-trigger
+  // the intro and the panel would refuse to hide. After this, the corner pill
+  // is the only thing that toggles it, so playing with the cards never pops it.
   useEffect(() => {
     if (!mounted || isMobile) return;
-    if (pinned) return; // pinned stays open; nothing to schedule
-
     setVisible(true);
     if (hideTimerRef.current != null) window.clearTimeout(hideTimerRef.current);
     hideTimerRef.current = window.setTimeout(() => setVisible(false), 3500);
-
     return () => {
       if (hideTimerRef.current != null) window.clearTimeout(hideTimerRef.current);
     };
-  }, [mounted, pinned, isMobile]);
+  }, [mounted, isMobile]);
 
   // Mirror the HUD details panel visibility into the visualizer store so the
   // VisualizerPanel (which sits below this) can slide out of the way when
@@ -92,9 +90,14 @@ export default function HUD({ fps, bodies, contacts, stepMs, gravityMode }: Prop
       {/* The always-visible toggle pill. Small, monospace, unobtrusive. */}
       <button
         onClick={() => {
-          // Clicking toggles pin state; if currently hidden, also show it.
-          setPinned((p) => !p);
-          setVisible(true);
+          // Cancel any pending intro-hide, then toggle: pinning shows it,
+          // unpinning hides it immediately.
+          if (hideTimerRef.current != null) window.clearTimeout(hideTimerRef.current);
+          setPinned((p) => {
+            const next = !p;
+            setVisible(next);
+            return next;
+          });
         }}
         aria-label={pinned ? "Unpin physics HUD" : "Pin physics HUD"}
         title={pinned ? "click to hide" : "click to pin"}

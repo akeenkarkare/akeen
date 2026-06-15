@@ -10,8 +10,8 @@ interface Props {
 }
 
 /**
- * Small floating pill of gravity modes. Sits in the bottom-right so it
- * doesn't fight with the HUD or nav. Each button is tabbable.
+ * Small floating pill of gravity modes. Sits at top-center, away from the
+ * bottom where cards pile up under gravity. Each button is tabbable.
  *
  * Portaled to document.body to escape the ScreenShake stacking context —
  * otherwise it gets trapped behind the Hero and is invisible.
@@ -25,8 +25,9 @@ export default function GravityControls({ mode, onChange }: Props) {
     <div
       style={{
         position: "fixed",
-        right: 16,
-        bottom: 16,
+        top: 18,
+        left: "50%",
+        transform: "translateX(-50%)",
         padding: "6px 8px",
         background: "rgba(10, 12, 18, 0.72)",
         border: "1px solid rgba(255,255,255,0.08)",
